@@ -43,6 +43,7 @@ use Cake\Datasource\Exception\RecordNotFoundException;
 */
 class UserController extends AppController
 {
+
     private $userTableObj = null;
 
     public function initialize()
@@ -191,7 +192,7 @@ class UserController extends AppController
         }
         $this->renderResponse($response, $statusCode);
     }
-    
+
     /**
     @SWG\Post(
         path="/users",
@@ -429,9 +430,87 @@ class UserController extends AppController
             '_serialize' => ['message', 'user']
         ], $statusCode);
     }
-        
+
+    /**
+    @SWG\Delete(
+        path="/users/{id}",
+        summary="Remove a user",
+        description="Remove a user from system",
+        tags={"Users"},
+        consumes={"application/json"},
+        produces={"application/json"},
+        @SWG\Parameter(
+            name="id",
+            description="Primary key of User table",
+            in="path",
+            required=true,
+            type="integer",
+            default=""
+        ),
+        @SWG\Response(
+            response="200",
+            description="Successful operation",
+            @SWG\Schema(
+                type="array",
+                @SWG\Items(
+                    type="object",
+                    @SWG\Property(property="id",
+                        type="integer",
+                        description="Id of user"
+                    ),
+                    @SWG\Property(
+                        property="username",
+                        type="string",
+                        description="Username of user"
+                    ),
+                    @SWG\Property(
+                        property="firstName",
+                        type="string",
+                        description="First name of user"
+                    ),
+                    @SWG\Property(
+                        property="lastName",
+                        type="string",
+                        description="Last name of user"
+                    ),
+                    @SWG\Property(
+                        property="state",
+                        type="boolean",
+                        description="State of user"
+                    )
+                )
+            )
+        ),
+        @SWG\Response(
+            response="404",
+            description="Not found"
+        )
+    )
+    */
+    public function delete($id)
+    {
+        $statusCode = 200;
+        try {
+            $userEnt = $this->userTableObj->get($id);
+            $message = __('Record deleted');
+            if (!$this->userTableObj->delete($userEnt)) {
+                $message = __('Error occured');
+                $statusCode = 500;
+            }
+        } catch (RecordNotFoundException $err) {
+            $message = $err->getMessage();
+            $statusCode = $err->getCode();
+        }
+        $this->renderResponse([
+            'message' => $message??'',
+            'user' => $userEnt??[],
+            '_serialize' => ['message', 'user']
+        ], $statusCode);
+    }
+
     private function renderResponse(array $body, int $code) {
         $this->set($body);
         $this->response->statusCode($code);
-    }    
+    }
+
 }
