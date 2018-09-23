@@ -7,7 +7,11 @@ $appFolder = str_replace([$_SERVER['DOCUMENT_ROOT'], 'webroot'], ['', ''], getcw
 if (!empty($appFolder) && $appFolder != '/') {
     $cntxtPrfx = $cntxtPrfx . $appFolder;
 }
-define('SWAGGER_BASE_PATH', $cntxtPrfx . 'api/');
+define('SWAGGER_BASE_PATH', $cntxtPrfx . '/api/');
+$schems = ['http', 'https'];
+if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') {
+    $schems = ['https', 'http'];
+}
 return [
     'Swagger' => [
         'ui' => [
@@ -15,7 +19,7 @@ return [
             'validator' => true,
             'api_selector' => true,
             'route' => '/api-spec/',
-            'schemes' => ['http', 'https']
+            'schemes' => $schems
         ],
         'docs' => [
             'crawl' => Configure::read('debug'),
