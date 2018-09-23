@@ -75,5 +75,33 @@ Router::scope('/', function (RouteBuilder $routes) {
      * You can remove these routes once you've connected the
      * routes you want in your application.
      */
+
+    // routing for list
+    $routes->connect('/api/users/', ['controller' => 'User', 'action' => 'index'])
+            ->setMethods(['GET']);
+
+     // routing for create resource 
+     $routes->connect('/api/users/', ['controller' => 'User', 'action' => 'add'])
+     ->setMethods(['POST']);
+
+     // routing for update resource
+     $routes->connect('/api/users/:id', ['controller' => 'User', 'action' => 'edit'])
+     ->setMethods(['PUT'])
+     ->setPatterns(['id' => '\d+'])
+     ->setPass(['id']);
+
+    // routing for view
+    $routes->connect('/api/users/:id', ['controller' => 'User', 'action' => 'view'])
+            ->setMethods(['GET'])
+            ->setPatterns(['id' => '\d+'])
+            ->setPass(['id']);
+
+    // routing for delete
+    $routes->connect('/api/users/:id', ['controller' => 'User', 'action' => 'delete'])
+            ->setMethods(['DELETE'])
+            ->setPatterns(['id' => '\d+'])
+            ->setPass(['id']);
+
+    $routes->resources('User');
     $routes->fallbacks(DashedRoute::class);
 });
