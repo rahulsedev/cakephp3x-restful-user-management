@@ -9,6 +9,9 @@ class UsersTable extends Table
     public function initialize(array $config)
     {
         $this->setTable('User');
+        $this->hasMany('UserRole', [
+            'className' => 'UserRole'
+        ]);
     }
 
     public function validationDefault(Validator $validator)
@@ -34,7 +37,7 @@ class UsersTable extends Table
     /**
      * checkUnique method
      * @param string $username to check uniqueness
-     * @param int $uid for update case
+     * @param int $uId for update case
      * @return true/false
      */
     public function checkUnique(string $username, int $uId = 0): bool {

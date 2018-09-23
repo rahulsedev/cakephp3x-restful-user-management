@@ -105,7 +105,11 @@ class UserController extends AppController
     public function index()
     {
         $limitRecords = 10;
-        $users = $this->userTableObj->find('all')->limit($limitRecords);
+        $users = $this->userTableObj->find('all')
+                                ->contain(['UserRole' => function($q) {
+                                    return $q->contain(['Role']);
+                                }])
+                                ->limit($limitRecords);
         $this->renderResponse([
             'users' => $users,
             '_serialize' => 'users'
