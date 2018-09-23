@@ -20,6 +20,8 @@ use Cake\Http\Exception\NotFoundException;
 use Cake\ORM\TableRegistry;
 use Cake\Http\Response;
 use Cake\Datasource\Exception\RecordNotFoundException;
+use Cake\Log\Log;
+
 /**
  * Static content controller
  *
@@ -114,6 +116,7 @@ class UserController extends AppController
             'users' => $users,
             '_serialize' => 'users'
         ], 200);
+        Log::write('debug', "GET | api/users:" . $this->request->clientIp());
     }
 
     /**
@@ -172,7 +175,7 @@ class UserController extends AppController
         )
     )
     */
-    public function view($id)
+    public function view(int $id)
     {
         $response = [];
         $statusCode = 500;
@@ -195,6 +198,7 @@ class UserController extends AppController
             ];
         }
         $this->renderResponse($response, $statusCode);
+        Log::write('debug', "GET | api/users/$id" . $this->request->clientIp());
     }
 
     /**
@@ -305,6 +309,7 @@ class UserController extends AppController
             'user' => $userEnt??[],
             '_serialize' => ['message', 'user']
         ], $statusCode);
+        Log::write('debug', "POST | api/users" . $this->request->clientIp());
     }
 
     /**
@@ -433,6 +438,7 @@ class UserController extends AppController
             'user' => $userEnt??[],
             '_serialize' => ['message', 'user']
         ], $statusCode);
+        Log::write('debug', "PUT | api/users/$id" . $this->request->clientIp());
     }
 
     /**
@@ -491,7 +497,7 @@ class UserController extends AppController
         )
     )
     */
-    public function delete($id)
+    public function delete(int $id)
     {
         $statusCode = 200;
         try {
@@ -510,6 +516,7 @@ class UserController extends AppController
             'user' => $userEnt??[],
             '_serialize' => ['message', 'user']
         ], $statusCode);
+        Log::write('debug', "DELETE | api/users/$id" . $this->request->clientIp());
     }
 
     private function renderResponse(array $body, int $code) {

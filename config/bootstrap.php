@@ -197,3 +197,16 @@ Type::build('timestamp')
 //Inflector::rules('irregular', ['red' => 'redlings']);
 //Inflector::rules('uninflected', ['dontinflectme']);
 //Inflector::rules('transliteration', ['/å/' => 'aa']);
+
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
+
+Log::setConfig('default', function () {
+    $log = new Logger('app');
+    $log->pushHandler(new StreamHandler(ROOT . DS . 'data' . DS . 'rest-api.log'));
+    return $log;
+});
+
+// Optionally stop using the now redundant default loggers
+Log::drop('debug');
+Log::drop('error');
