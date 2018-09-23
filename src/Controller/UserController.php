@@ -192,6 +192,244 @@ class UserController extends AppController
         $this->renderResponse($response, $statusCode);
     }
     
+    /**
+    @SWG\Post(
+        path="/users",
+        summary="Create a user",
+        description="Create a new user in to system",
+        tags={"Users"},
+        consumes={"application/json"},
+        produces={"application/json"},
+        @SWG\Parameter(
+            name="username",
+            description="Username of User",
+            in="formData",
+            required=true,
+            type="string",
+            default=""
+        ),
+        @SWG\Parameter(
+            name="firstName",
+            description="First name of User",
+            in="formData",
+            required=true,
+            type="string",
+            default=""
+        ),
+        @SWG\Parameter(
+            name="lastName",
+            description="Last name of User",
+            in="formData",
+            required=true,
+            type="string",
+            default=""
+        ),
+        @SWG\Parameter(
+            name="state",
+            description="State of User",
+            in="formData",
+            required=true,
+            type="boolean",
+            default=true
+        ),
+        @SWG\Response(
+            response="200",
+            description="Successful operation",
+            @SWG\Schema(
+                type="array",
+                @SWG\Items(
+                    type="object",
+                    @SWG\Property(property="id",
+                        type="integer",
+                        description="Id of user"
+                    ),
+                    @SWG\Property(
+                        property="username",
+                        type="string",
+                        description="Username of user"
+                    ),
+                    @SWG\Property(
+                        property="firstName",
+                        type="string",
+                        description="First name of user"
+                    ),
+                    @SWG\Property(
+                        property="lastName",
+                        type="string",
+                        description="Last name of user"
+                    ),
+                    @SWG\Property(
+                        property="state",
+                        type="boolean",
+                        description="State of user"
+                    )
+                )
+            )
+        ),
+        @SWG\Response(
+            response="404",
+            description="Not found"
+        )
+    )
+    */
+    public function add()
+    {
+        $statusCode = 500;
+        $userEnt = $this->userTableObj->newEntity($this->request->getData());
+        if (!empty($userEnt->errors())) {
+            foreach ($userEnt->errors() as $field => $err) {
+                $message = "$field: " . current($err);
+                break;
+            }
+            $statusCode = 400;
+        } else {
+            if (!$this->userTableObj->checkUnique($userEnt->username)) {
+                $message = __("Username already exists. You can try with other username.");
+                $statusCode = 400;
+            } else {
+                if ($this->userTableObj->save($userEnt)) {
+                    $message = __('Record added');
+                    $statusCode = 201;
+                } else {
+                    $message = __('Error occured. Please try again');
+                }
+            }
+        }
+        $this->renderResponse([
+            'message' => $message,
+            'user' => $userEnt??[],
+            '_serialize' => ['message', 'user']
+        ], $statusCode);
+    }
+
+    /**
+    @SWG\Put(
+        path="/users/{id}",
+        summary="Update a user",
+        description="Update a user details",
+        tags={"Users"},
+        consumes={"application/json"},
+        produces={"application/json"},
+        @SWG\Parameter(
+            name="id",
+            description="Primary key of User table",
+            in="path",
+            required=true,
+            type="integer",
+            default=""
+        ),
+        @SWG\Parameter(
+            name="username",
+            description="Username of User",
+            in="formData",
+            required=true,
+            type="string",
+            default=""
+        ),
+        @SWG\Parameter(
+            name="firstName",
+            description="First name of User",
+            in="formData",
+            required=true,
+            type="string",
+            default=""
+        ),
+        @SWG\Parameter(
+            name="lastName",
+            description="Last name of User",
+            in="formData",
+            required=true,
+            type="string",
+            default=""
+        ),
+        @SWG\Parameter(
+            name="state",
+            description="State of User",
+            in="formData",
+            required=true,
+            type="boolean",
+            default=true
+        ),
+        @SWG\Response(
+            response="200",
+            description="Successful operation",
+            @SWG\Schema(
+                type="array",
+                @SWG\Items(
+                    type="object",
+                    @SWG\Property(property="id",
+                        type="integer",
+                        description="Id of user"
+                    ),
+                    @SWG\Property(
+                        property="username",
+                        type="string",
+                        description="Username of user"
+                    ),
+                    @SWG\Property(
+                        property="firstName",
+                        type="string",
+                        description="First name of user"
+                    ),
+                    @SWG\Property(
+                        property="lastName",
+                        type="string",
+                        description="Last name of user"
+                    ),
+                    @SWG\Property(
+                        property="state",
+                        type="boolean",
+                        description="State of user"
+                    )
+                )
+            )
+        ),
+        @SWG\Response(
+            response="404",
+            description="Not found"
+        )
+    )
+    */    
+    public function edit(int $id)
+    {
+        $statusCode = 500;
+        if (!empty($id)) {
+            $userData = $this->userTableObj->findById($id)->first();
+        }
+        // check if request resource exists or not
+        if (!empty($userData)) {
+            $userEnt = $this->userTableObj->newEntity($this->request->getData());
+            if (!empty($userEnt->errors())) {
+                foreach ($userEnt->errors() as $field => $err) {
+                    $message = "$field: " . current($err);
+                    break;
+                }
+                $statusCode = 400;
+            } else {
+                if (!$this->userTableObj->checkUnique($userEnt->username, $id)) {
+                    $message = __("Username already exists. You can try with other username.");
+                    $statusCode = 400;
+                } else {
+                    if ($this->userTableObj->save($userEnt)) {
+                        $message = __('Record updated');
+                        $statusCode = 200;
+                    } else {
+                        $message = __('Error occured. Please try again');
+                    }
+                }
+            }    
+        } else {
+            $statusCode = 404;
+            $message = __('Resource not found.');
+        }
+
+        $this->renderResponse([
+            'message' => $message,
+            'user' => $userEnt??[],
+            '_serialize' => ['message', 'user']
+        ], $statusCode);
+    }
+        
     private function renderResponse(array $body, int $code) {
         $this->set($body);
         $this->response->statusCode($code);
