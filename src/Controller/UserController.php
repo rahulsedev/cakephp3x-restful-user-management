@@ -52,4 +52,148 @@ class UserController extends AppController
         $this->viewBuilder()->className('Json');
         $this->userTableObj = TableRegistry::getTableLocator()->get('Users');
     }
+
+    /**
+    @SWG\Get(
+        path="/users",
+        summary="List of users",
+        description="Retrieve list of user",
+        tags={"Users"},
+        consumes={"application/json"},
+        produces={"application/json"},
+        @SWG\Response(
+            response="200",
+            description="Successful operation",
+            @SWG\Schema(
+                type="array",
+                @SWG\Items(
+                    type="object",
+                    @SWG\Property(property="id",
+                        type="integer",
+                        description="Id of user"
+                    ),
+                    @SWG\Property(
+                        property="username",
+                        type="string",
+                        description="Username of user"
+                    ),
+                    @SWG\Property(
+                        property="firstName",
+                        type="string",
+                        description="First name of user"
+                    ),
+                    @SWG\Property(
+                        property="lastName",
+                        type="string",
+                        description="Last name of user"
+                    ),
+                    @SWG\Property(
+                        property="state",
+                        type="boolean",
+                        description="State of user"
+                    )
+                )
+            )
+        ),
+        @SWG\Response(
+            response="500",
+            description="Server error occured"
+        )
+    )
+    */
+    public function index()
+    {
+        $limitRecords = 10;
+        $users = $this->userTableObj->find('all')->limit($limitRecords);
+        $this->renderResponse([
+            'users' => $users,
+            '_serialize' => 'users'
+        ], 200);
+    }
+
+    /**
+    @SWG\Get(
+        path="/users/{id}",
+        summary="Details of user",
+        description="Retrieve details of user",
+        tags={"Users"},
+        consumes={"application/json"},
+        produces={"application/json"},
+        @SWG\Parameter(
+            name="id",
+            description="Primary key of User table",
+            in="path",
+            required=true,
+            type="integer",
+            default=""
+        ),
+        @SWG\Response(
+            response="200",
+            description="Successful operation",
+            @SWG\Schema(
+                type="array",
+                @SWG\Items(
+                    type="object",
+                    @SWG\Property(property="id",
+                        type="integer",
+                        description="Id of user"
+                    ),
+                    @SWG\Property(
+                        property="username",
+                        type="string",
+                        description="Username of user"
+                    ),
+                    @SWG\Property(
+                        property="firstName",
+                        type="string",
+                        description="First name of user"
+                    ),
+                    @SWG\Property(
+                        property="lastName",
+                        type="string",
+                        description="Last name of user"
+                    ),
+                    @SWG\Property(
+                        property="state",
+                        type="boolean",
+                        description="State of user"
+                    )
+                )
+            )
+        ),
+        @SWG\Response(
+            response="404",
+            description="Not found"
+        )
+    )
+    */
+    public function view($id)
+    {
+        $response = [];
+        $statusCode = 500;
+        if (!empty($id))
+        $userEnt = $this->userTableObj->findById($id)->first();
+                
+        // check if request resource exists or not
+        if (!empty($userEnt)) {
+            $response = [
+                'user' => $userEnt,
+                '_serialize' => 'user'
+            ];
+            $statusCode = 200;
+        } else {
+            $statusCode = 404;
+            $message = __('Resource not found.');
+            $response = [
+                'message' => $message,
+                '_serialize' => ['message']
+            ];
+        }
+        $this->renderResponse($response, $statusCode);
+    }
+    
+    private function renderResponse(array $body, int $code) {
+        $this->set($body);
+        $this->response->statusCode($code);
+    }    
 }
