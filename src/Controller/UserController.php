@@ -43,7 +43,6 @@ use Cake\Datasource\Exception\RecordNotFoundException;
 */
 class UserController extends AppController
 {
-
     private $userTableObj = null;
 
     public function initialize()
@@ -53,5 +52,4 @@ class UserController extends AppController
         $this->viewBuilder()->className('Json');
         $this->userTableObj = TableRegistry::getTableLocator()->get('Users');
     }
-
 }
