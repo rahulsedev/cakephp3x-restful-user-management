@@ -519,6 +519,9 @@ class UserController extends AppController
         Log::write('debug', "DELETE | api/users/$id" . $this->request->clientIp());
     }
 
+    /**
+     * Function to render response
+     */
     private function renderResponse(array $body, int $code) {
         $this->set($body);
         $this->response->statusCode($code);
